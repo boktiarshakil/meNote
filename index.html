@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Notes App</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0-beta.2/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div id="login-page" class="flex justify-center items-center h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 class="text-2xl font-bold mb-4 text-center">Login to Your Notes</h2>
+      <input type="password" id="password" class="w-full p-3 border border-gray-300 rounded-md mb-4" placeholder="Enter Password">
+      <button onclick="login()" class="w-full bg-blue-500 text-white p-3 rounded-md">Login</button>
+    </div>
+  </div>
+
+  <div id="notes-page" class="hidden">
+    <div class="flex justify-between items-center p-6 bg-blue-500 text-white">
+      <h1 class="text-3xl">My Notes</h1>
+      <button onclick="logout()" class="bg-red-500 p-2 rounded-md">Logout</button>
+    </div>
+
+    <div class="p-6">
+      <button onclick="showNoteForm()" class="bg-green-500 text-white p-2 rounded-md mb-4">Add New Note</button>
+      <div id="notes-list"></div>
+    </div>
+
+    <div id="note-form" class="hidden p-6 bg-white shadow-lg rounded-lg fixed top-20 left-1/2 transform -translate-x-1/2 w-96">
+      <h2 class="text-2xl mb-4">Create New Note</h2>
+      <input type="text" id="note-title" class="w-full p-3 border border-gray-300 rounded-md mb-4" placeholder="Note Title">
+      <textarea id="note-content" class="w-full p-3 border border-gray-300 rounded-md mb-4" rows="5" placeholder="Note Content"></textarea>
+      <button onclick="saveNote()" class="bg-blue-500 text-white p-2 rounded-md">Save Note</button>
+      <button onclick="closeNoteForm()" class="bg-gray-500 text-white p-2 rounded-md ml-2">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const correctPassword = "BoktiarShakil";
+
+    function login() {
+      const passwordInput = document.getElementById("password").value;
+      if (passwordInput === correctPassword) {
+        document.getElementById("login-page").classList.add("hidden");
+        document.getElementById("notes-page").classList.remove("hidden");
+        loadNotes();
+      } else {
+        alert("Incorrect password!");
+      }
+    }
+
+    function logout() {
+      document.getElementById("notes-page").classList.add("hidden");
+      document.getElementById("login-page").classList.remove("hidden");
+    }
+
+    function showNoteForm() {
+      document.getElementById("note-form").classList.remove("hidden");
+    }
+
+    function closeNoteForm() {
+      document.getElementById("note-form").classList.add("hidden");
+    }
+
+    function saveNote() {
+      const title = document.getElementById("note-title").value;
+      const content = document.getElementById("note-content").value;
+      if (title && content) {
+        const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+        notes.push({ title, content });
+        localStorage.setItem("notes", JSON.stringify(notes));
+        closeNoteForm();
+        loadNotes();
+      } else {
+        alert("Please fill in both fields.");
+      }
+    }
+
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+      const notesList = document.getElementById("notes-list");
+      notesList.innerHTML = "";
+
+      notes.forEach((note, index) => {
+        const noteElement = document.createElement("div");
+        noteElement.classList.add("bg-white", "p-4", "mb-4", "shadow-lg", "rounded-lg");
+        noteElement.innerHTML = `
+          <h3 class="font-bold">${note.title}</h3>
+          <p>${note.content}</p>
+          <button onclick="deleteNote(${index})" class="bg-red-500 text-white p-2 rounded-md mt-2">Delete</button>
+        `;
+        notesList.appendChild(noteElement);
+      });
+    }
+
+    function deleteNote(index) {
+      const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+      notes.splice(index, 1);
+      localStorage.setItem("notes", JSON.stringify(notes));
+      loadNotes();
+    }
+  </script>
+</body>
+</html>
